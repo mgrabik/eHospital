@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<net:Visits xmlns:net="http://tempuri.org/visits.xsd">
+	
+	<net:Visit VisitID="1" Date="2012-07-15T00:00:00.000">
+		<net:Doctor>
+			<net:Person Name="Adam" Surname="Markowski"/>
+		</net:Doctor>
+
+		<net:Patient PESEL="2137">
+			<net:Person Name="Izabela" Surname="Olszewska"/>
+		</net:Patient>
+	</net:Visit>
+
+
+</net:Visits>

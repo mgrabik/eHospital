@@ -1,0 +1,20 @@
+﻿@page "/counter"
+
+<h2>Counter</h2>
+
+<p>Current count: @CounterMemory.currentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+<br />
+<br />
+<br />
+
+<p style="font-size: 12px">*Now your counter does not forget how many times you clicked. Enjoy your clicking!</p>
+@code {
+
+    private void IncrementCount()
+    {
+        CounterMemory.currentCount++;
+    }
+}

@@ -1,0 +1,22 @@
+﻿@page "/chart"
+@inject IController controller
+@inject IModel model
+
+<h3>Your Visits for the next 7 days</h3>
+
+<div class="row">
+    <div class="col-md-6 col-sm-12 p-4">
+        <RadzenChart>
+            <RadzenColumnSeries Data="@Visits.allData" CategoryProperty="Day" Title="Visits" LineType="LineType.Dashed" ValueProperty="Count" />
+            <RadzenColumnOptions Radius="5" />
+            <RadzenValueAxis Min="0">
+                <RadzenGridLines Visible="true" />
+                <RadzenAxisTitle Text="Number of Visits" />
+            </RadzenValueAxis>
+        </RadzenChart>
+    </div>
+</div>
+
+<br />
+<a href="visits"><RadzenButton Text="Back"></RadzenButton></a>
+

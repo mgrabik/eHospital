@@ -1,0 +1,255 @@
+﻿@page "/visits"
+@inject IController controller
+@inject IModel model
+@inject NavigationManager navigationManager
+
+
+<RadzenTextBox @bind-Value="@model.ValueInTextBox" Style="width: 200px" Placeholder="Name and Surname" />
+<RadzenButton Icon="cached" Text="Show/Refresh" Click="@loadVisitList" />
+<RadzenButton Icon="add_circle_outline" style="margin-bottom: 10px" Text="Add" Click="@InsertRow" />
+<RadzenLabel Text="@text" Visible="@visiblelabel" Style="width: 600px; font-family:Arial; font:bold; color:red" />
+
+<RadzenDataGrid @ref="visitGrid" AllowFiltering="true" AllowPaging="true" PageSize="10" AllowSorting="true" EditMode="DataGridEditMode.Single"
+                Data="@model.VisitList" TItem="Visit">
+    <Columns>
+        <RadzenDataGridColumn Width="100px" TItem="Visit" Property="Id" Title="Visit ID" />
+        <RadzenDataGridColumn TItem="Visit" Width="200px" Property="Date" Title="Date">
+            <Template Context="date">
+                @String.Format("{0:d}", date.Date)
+            </Template>
+            <EditTemplate Context="newDate">
+                <RadzenDatePicker @bind-Value="newDate.Date" ShowTime="true" Style="width:100%" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Width="300px" TItem="Visit" Property="Patient.Name" Title="Visit with">
+            <Template Context="patient">
+                @patient.Patient?.Name @patient.Patient?.Surname
+            </Template>
+            <EditTemplate>
+                <RadzenTextBox Style="width:49%" @bind-Value="@newPatient.Name" Placeholder="Name" />
+                <RadzenTextBox Style="width:49%" @bind-Value="@newPatient.Surname" Placeholder="Surname" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Width="200px" TItem="Visit" Property="Patient.PESEL" Title="Patient PESEL">
+            <EditTemplate>
+                <RadzenTextBox Style="width:100%" @bind-Value="@newPatient.PESEL" Placeholder="Pesel" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Width="300px" TItem="Visit" Property="Doctor.Name" Title="Your name">
+            <Template Context="doctor">
+                @doctor.Doctor?.Name @doctor.Doctor?.Surname
+            </Template>
+            <EditTemplate>
+                @splited[0] @splited[1]
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Visit" Context="visit" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="70px">
+            <EditTemplate Context="visit">
+                <RadzenButton Icon="save" Size="ButtonSize.Small" Click="@((args) => saveRow(visit))">
+                </RadzenButton>
+                <RadzenButton Icon="cancel" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="@((args) => cancelEdit(visit))">
+                </RadzenButton>
+            </EditTemplate>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+<RadzenLabel Text="@textCorrect" Visible="@visiblelabelCorrect" Style="width: 600px; font-family:Arial; font:bold; color:forestgreen" />
+
+<br />
+<RadzenButton Text="Show chart" Click="NavigatorToChart" Visible="@btnToChartVisible"></RadzenButton>
+<RadzenLabel Text="You cannot see chart because you do not have visits in neabry 7 days." Visible="@labelToChartVisible" />
+
+
+@code {
+    RadzenDataGrid<Visit> visitGrid;
+
+    Patient newPatient = new Patient();
+
+    string text { get; set; } = "";
+    bool visiblelabel { get; set; } = false;
+
+    string textCorrect { get; set; } = "";
+    bool visiblelabelCorrect { get; set; } = false;
+
+    bool btnToChartVisible { get; set; } = false;
+    bool labelToChartVisible { get; set; } = false;
+
+    List<string> splited = new List<string>();
+
+    void loadVisitList()
+    {
+        if (validator())
+        {
+            visiblelabel = false;
+            visiblelabelCorrect = false;
+            controller.SearchVisitAsync();
+            if (model.VisitList.Count == 0)
+            {
+                visiblelabel = true;
+                text = "You have no visits";
+            }
+            else
+            {
+                customID();
+                btnToChartVisible = true;
+            }
+        }
+        else
+        {
+            visiblelabel = true;
+            text = "Please type your name and surname!";
+        }
+    }
+
+    void InsertRow()
+    {
+        customID();
+        visitGrid.InsertRow(new Visit());
+    }
+
+    void saveRow(Visit visit)
+    {
+        visit.Doctor = new Doctor();
+        visit.Patient = new Patient();
+        visit.Doctor.Name = splited[0];
+        visit.Doctor.Surname = splited[1];
+        if (newPatient.Name == null || newPatient.Name == "" || newPatient.Surname == null ||
+            newPatient.Surname == "" || newPatient.PESEL == null || newPatient.PESEL == "" ||
+            visit.Date == null || visit.Date == new DateTime())
+        {
+            visiblelabel = true;
+            text = "Typed data of new doctor is not valid! Correct your input.";
+        }
+        else
+        {
+            visiblelabel = false;
+            visit.Id = (model.VisitList.Count + 1).ToString();
+            visit.Patient.Name = newPatient.Name;
+            visit.Patient.Surname = newPatient.Surname;
+            visit.Patient.PESEL = newPatient.PESEL;
+            visitGrid.UpdateRow(visit);
+            model.SelectedVisit = visit;
+            controller.AddVisitAsync();
+            visiblelabelCorrect = true;
+            textCorrect = "Visit has been added! Refresh to see changes.";
+            model.VisitList.Add(visit);
+        }
+    }
+
+    void cancelEdit(Visit visit)
+    {
+        visitGrid.CancelEditRow(visit);
+    }
+
+    bool validator()
+    {
+        splited.Clear();
+        if (model.ValueInTextBox == null || model.ValueInTextBox == "")
+        {
+            return false;
+        }
+        else
+        {
+            string[] splitedArray = model.ValueInTextBox.Split(' ');
+            if (splitedArray.Length != 2)
+            {
+                return false;
+            }
+            else
+            {
+                foreach (var text in splitedArray)
+                {
+                    splited.Add(text);
+                }
+                return true;
+            }
+        }
+    }
+
+    void customID()
+    {
+        int i = 1;
+        foreach (Visit visit in model.VisitList)
+        {
+            visit.Id = i.ToString();
+            i++;
+        }
+    }
+
+    List<DateTime> next7days = new List<DateTime>();
+
+    void createListOfNext7Days()
+    {
+        DateTime today = DateTime.Today;
+
+        for (int i = 1; i < 8; i++)
+        {
+            next7days.Add(today.AddDays(i));
+        }
+    }
+
+    void fillDictionary()
+    {
+        DateTime today = DateTime.Today;
+        DateTime in7days = today.AddDays(8);
+        Dictionary<DayOfWeek, int> dic = new Dictionary<DayOfWeek, int>()
+{
+        { DayOfWeek.Monday, 0},
+        { DayOfWeek.Tuesday, 0},
+        { DayOfWeek.Wednesday, 0},
+        { DayOfWeek.Thursday, 0},
+        { DayOfWeek.Friday, 0},
+        { DayOfWeek.Saturday, 0},
+        { DayOfWeek.Sunday, 0},
+    };
+
+        foreach (Visit visit in model.VisitList)
+        {
+            if (visit.Date > today && visit.Date <= in7days)
+            {
+                dic[visit.Date.DayOfWeek]++;
+            }
+        }
+
+        for (int i = 0; i < 7; i++)
+        {
+            string date = String.Format(next7days[i].Day.ToString() +"-"+ next7days[i].ToString("MMM"));
+            allData[i] = new DataItem(date, dic[next7days[i].DayOfWeek]);
+        }
+    }
+
+    bool dateValidator()
+    {
+        DateTime today = DateTime.Today;
+        DateTime in7days = today.AddDays(7);
+        bool result = false;
+
+        foreach (Visit visit in model.VisitList)
+        {
+            if (visit.Date > today && visit.Date <= in7days)
+            {
+                result = true;
+            }
+        }
+        return result;
+    }
+
+    void NavigatorToChart()
+    {
+        customID();
+        if (dateValidator())
+        {
+            labelToChartVisible = false;
+            createListOfNext7Days();
+            fillDictionary();
+            navigationManager.NavigateTo("chart");
+        }
+        else
+        {
+            labelToChartVisible = true;
+        }
+    }
+
+    public static DataItem[] allData = new DataItem[7];
+}

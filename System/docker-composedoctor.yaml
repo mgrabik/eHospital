@@ -1,0 +1,25 @@
+version: "3.9"
+
+services:
+  visitrest:
+    image: mpleszkun/application:visitrest
+    ports:
+      - 42074:80
+    networks:
+      - doctor-network
+    deploy:
+      replicas: 1
+  connectdoctorrest:
+    image: mpleszkun/application:connectdoctorrest
+    ports:
+      - 42073:80
+    networks:
+      - doctor-network
+    deploy:
+      replicas: 1
+    depends_on:
+      - visitrest
+
+networks:
+  doctor-network:
+    external: true

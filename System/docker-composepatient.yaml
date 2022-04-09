@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+  prescriptionrest:
+    image: mpleszkun/application:prescriptionrest
+    networks:
+      - patient-network
+    deploy:
+      replicas: 1
+  connectpatientrest:
+    image: mpleszkun/application:connectpatientrest
+    ports:
+      - 42072:80
+    networks:
+      - patient-network
+    deploy:
+      replicas: 1
+    depends_on:
+      - prescriptionrest
+
+networks:
+  patient-network:
+    external: true

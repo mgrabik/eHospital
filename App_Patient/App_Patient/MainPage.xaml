@@ -1,0 +1,65 @@
+﻿<Page
+    x:Class="App_Patient.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="using:App_Patient"
+    mc:Ignorable="d"
+    xmlns:i="using:Microsoft.XamlInteractivity"
+    xmlns:model="using:App_Patient.Model"
+    xmlns:modeldata="using:App_Patient.Logic.Model.Data"
+    xmlns:view="using:App_Patient.View.Converters"
+    xmlns:controller="using:App_Patient.Logic.Controller"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Page.Resources>
+        <view:ApplicationStateConverter x:Key="ApplicationStateConverter"/>
+        <view:PrescriptionDataConverter x:Key="PrescriptionDataConverter"/>
+
+        <DataTemplate x:Key="PrescriptionListViewTemplate" x:DataType="modeldata:Prescription">
+            <TextBlock Text="{x:Bind Mode=OneTime, Converter={StaticResource PrescriptionDataConverter}}"/>
+        </DataTemplate>
+    </Page.Resources>
+    
+    <Page.BottomAppBar>
+        <CommandBar IsOpen="True" IsSticky="False" Visibility="Visible">
+            <AppBarButton Icon="List" Label="List" />
+            <AppBarButton Icon="Map" Label="Map" />
+            <CommandBar.SecondaryCommands>
+                <AppBarButton Icon="Setting" Label="Settings" IsEnabled="False" />
+                <AppBarButton Icon="Help" Label="Help" />
+            </CommandBar.SecondaryCommands>
+        </CommandBar>
+    </Page.BottomAppBar>
+    
+    <Grid x:Name="rootPanel" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="400" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid x:Name="listPanel" Background="#FF257600"  Grid.Row="0" Margin="0,0,10,-22" Grid.RowSpan="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="320" />
+            </Grid.RowDefinitions>
+
+            <StackPanel x:Name="prescriptionSearchPanel" Grid.Row="0" Orientation="Horizontal" Margin="4,0,4,4">
+                <AppBarButton Icon="Find" Height="36" Command="{x:Bind Controller.SearchPrescriptionsCommand}" Click="searchButton_Click" RenderTransformOrigin="0.515,1.61" Width="31"  VerticalAlignment="Bottom"/>
+                <TextBox x:Name="peselText" Header="Type your PESEL:" Text="{x:Bind Model.ValueInTextBox, Mode=TwoWay}" Width="307" VerticalAlignment="Bottom" PlaceholderText="Search..." FontStyle="Normal"/>
+                <AppBarButton x:Name="searchButton" Label="Search" Command="{x:Bind Controller.SearchPrescriptionsCommand}" VerticalAlignment="Bottom" Click="searchButton_Click" Icon="Filter" Width="69" />
+            </StackPanel>
+
+            <StackPanel x:Name="prescriptionPanel" Grid.Row="1" Margin="4">
+                <TextBlock x:Name="prescriptionText" Text="All your prescriptions:" Margin="0,4,0,4" />
+                <ListView x:Name="PrescriptionList" ItemsSource="{x:Bind Model.PrescriptionList, Mode=OneWay}" ItemTemplate="{StaticResource PrescriptionListViewTemplate}" SelectedItem="{x:Bind Model.SelectedPrescription, Mode=TwoWay}" Height="240" BorderThickness="1" BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}" Width="411" />
+                <CommandBar x:Name="prescriptionCommandBar" DefaultLabelPosition="Right" Background="Transparent" HorizontalAlignment="Left" Width="251">
+                    <AppBarButton x:Name="addButton" Icon="Add" Label="Add new Presciption" Command="{x:Bind Controller.AddElement}" Click="addButton_Click" VerticalAlignment="Center" />
+                </CommandBar>
+                <FlipView Height="100"/>
+            </StackPanel>
+            <TextBlock HorizontalAlignment="Left" Margin="106,5,105,0" Text="App for Patient" FontSize="24" TextWrapping="Wrap" VerticalAlignment="Top" Height="38" Width="208" FocusVisualPrimaryBrush="Black" Foreground="#FFD4D4D4" FontFamily="Comic Sans MS" FontWeight="Normal"/>
+            <CalendarDatePicker x:Name="selectDate" Margin="290,278,0,0" Grid.Row="1" VerticalAlignment="Top"/>
+        </Grid>
+    </Grid>
+</Page>

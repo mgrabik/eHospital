@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+			xmlns:net="http://tempuri.org/visits.xsd" 
+			targetNamespace="http://tempuri.org/visits.xsd" 
+			elementFormDefault="qualified">
+	
+	<xsd:element name="Visits" type="net:Visits" />
+
+	<xsd:complexType name ="Visits">
+		<xsd:sequence>
+			<xsd:element name ="Visit" type="net:Visit" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	
+	<xsd:complexType name ="Visit">
+		<xsd:sequence>
+			<xsd:element name ="Doctor" type="net:Doctor" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name ="Patient" type ="net:Patient" minOccurs="1" maxOccurs="1"/>
+		</xsd:sequence>
+		<xsd:attribute name ="VisitID" type ="xsd:string" use ="required"/>
+		<xsd:attribute name ="Date" type ="xsd:dateTime" use="required"/>
+	</xsd:complexType>
+
+	<xsd:complexType name ="Doctor">
+		<xsd:sequence>
+			<xsd:element name ="Person" type ="net:Person" minOccurs="1" maxOccurs="1"/>
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:complexType name ="Patient">
+		<xsd:sequence>
+			<xsd:element name ="Person" type ="net:Person" minOccurs="1" maxOccurs="1"/>
+		</xsd:sequence>
+		<xsd:attribute name="PESEL" type="xsd:string" use="optional"/>
+	</xsd:complexType>
+
+	<xsd:complexType name ="Person">
+		<xsd:attribute name ="Name" type ="xsd:string" use ="required"/>
+		<xsd:attribute name ="Surname" type ="xsd:string" use ="required"/>
+	</xsd:complexType>
+	
+</xsd:schema>

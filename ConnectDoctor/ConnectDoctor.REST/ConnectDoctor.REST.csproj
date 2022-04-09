@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+		<StartupObject>ConnectDoctor.REST.Program</StartupObject>
+		<UserSecretsId>62c4e37f-d594-4573-bb21-b2c83bbc1321</UserSecretsId>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.13" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\ConnectDoctor.Logic\ConnectDoctor.Logic.csproj" />
+		<ProjectReference Include="..\ConnectDoctor.Model\ConnectDoctor.Model.csproj" />
+	</ItemGroup>
+
+</Project>
